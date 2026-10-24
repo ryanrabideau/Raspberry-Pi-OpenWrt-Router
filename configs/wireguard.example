@@ -1,0 +1,63 @@
+# Sanitized OpenWrt WireGuard configuration example
+#
+# All cryptographic keys, production endpoint information, and DDNS
+# credentials have been replaced with placeholders.
+#
+# The project used WireGuard for remote access to selected internal
+# resources rather than exposing LuCI or SSH directly to the WAN.
+
+# OpenWrt WireGuard interface
+
+config interface 'wg0'
+	option proto 'wireguard'
+	option private_key '<SERVER-PRIVATE-KEY>'
+	list addresses '10.0.40.1/24'
+	option listen_port '51820'
+
+# Example remote client peer
+
+config wireguard_wg0
+	option description 'Remote Client'
+	option public_key '<CLIENT-PUBLIC-KEY>'
+	option route_allowed_ips '1'
+	list allowed_ips '10.0.40.2/32'
+
+# Example client configuration
+#
+# This is shown for documentation only and is not intended to contain
+# real production keys.
+
+# [Interface]
+# PrivateKey = <CLIENT-PRIVATE-KEY>
+# Address = 10.0.40.2/32
+# DNS = 10.0.10.1
+#
+# [Peer]
+# PublicKey = <SERVER-PUBLIC-KEY>
+# Endpoint = router.example.duckdns.org:51820
+# AllowedIPs = 10.0.10.0/24, 10.0.40.0/24
+# PersistentKeepalive = 25
+
+# Firewall behavior used by the project:
+#
+# WAN UDP 51820
+#     -> WireGuard server
+#
+# wg0
+#     -> dedicated VPN firewall zone
+#     -> permitted internal resources
+#
+# The VPN subnet is 10.0.40.0/24. It is a routed WireGuard network
+# and is not an Ethernet VLAN.
+
+# Remote-access validation was performed from an iPhone 15 using
+# cellular data. The test confirmed a successful WireGuard handshake,
+# remote OpenWrt management access, DNS resolution, and Internet
+# connectivity through the configured routes.
+
+# Never publish:
+#
+# - Server private key
+# - Client private key
+# - DDNS authentication token
+# - Production backup containing these credentials
