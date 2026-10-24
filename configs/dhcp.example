@@ -1,0 +1,56 @@
+# Sanitized OpenWrt DHCP and DNS configuration example
+#
+# This file documents the DHCP scopes used by the project and the
+# client-facing dnsmasq configuration. Upstream DNS resolution is
+# handled separately by Unbound.
+
+config dnsmasq
+	option domainneeded '1'
+	option boguspriv '1'
+	option localise_queries '1'
+	option rebind_protection '1'
+	option local '/lan/'
+	option domain 'lan'
+	option expandhosts '1'
+	option cachesize '1000'
+	option authoritative '1'
+	option readethers '1'
+	option leasefile '/tmp/dhcp.leases'
+	option resolvfile '/tmp/resolv.conf.d/resolv.conf.auto'
+
+	# Forward client DNS requests to the local Unbound instance.
+	list server '127.0.0.1#5335'
+
+config dhcp 'lan'
+	option interface 'lan'
+	option start '100'
+	option limit '150'
+	option leasetime '12h'
+
+config dhcp 'trusted'
+	option interface 'trusted'
+	option start '100'
+	option limit '150'
+	option leasetime '12h'
+
+config dhcp 'iot'
+	option interface 'iot'
+	option start '100'
+	option limit '150'
+	option leasetime '12h'
+
+config dhcp 'guest'
+	option interface 'guest'
+	option start '100'
+	option limit '150'
+	option leasetime '12h'
+
+# Resulting primary DHCP pools:
+#
+# Management / Recovery: 192.168.1.100 - 192.168.1.249
+# Trusted:              10.0.10.100 - 10.0.10.249
+# IoT:                  10.0.20.100 - 10.0.20.249
+# Guest:                10.0.30.100 - 10.0.30.249
+#
+# WireGuard clients use addresses assigned by the VPN configuration
+# and therefore do not use a normal Ethernet DHCP scope.
