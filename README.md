@@ -26,6 +26,8 @@ The completed system included:
 
 ## Network Architecture
 
+![Raspberry Pi 5 OpenWrt router network architecture](images/architecture-diagram.png)
+
 During deployment, the network was configured as:
 
 **Internet → ARRIS G34 (bridge mode) → Raspberry Pi 5 → TP-Link TL-SG108E → wired devices / NETGEAR WAX210**
@@ -44,6 +46,8 @@ The network was divided into the following segments:
 
 IoT and Guest devices were allowed Internet access and required router services such as DHCP and DNS, while access to the Trusted network was restricted. Guest Wi-Fi also used client isolation to prevent guest devices from communicating directly with each other.
 
+More detail is available in [`docs/architecture.md`](docs/architecture.md) and [`docs/network-design.md`](docs/network-design.md).
+
 ## DNS and Security
 
 Client DNS requests were handled by dnsmasq and forwarded locally to Unbound. Unbound then forwarded requests to Quad9 using DNS-over-TLS on port 853.
@@ -54,13 +58,15 @@ AdBlock provided network-wide domain filtering, while BanIP was used for IP-base
 
 The OpenWrt firewall used REJECT as the default policy for input and forwarding, with rules added only for the traffic required by each network. LuCI and SSH were not exposed to the WAN.
 
+Additional security details are documented in [`docs/security.md`](docs/security.md).
+
 ## WireGuard VPN
 
 WireGuard was configured directly on the OpenWrt router using the `10.0.40.0/24` VPN subnet. Dynamic DNS was used so the router could still be reached when the residential public IP address changed.
 
 Remote access was tested from an iPhone 15 using cellular data. The test confirmed successful WireGuard handshakes, remote access to the OpenWrt management interface, DNS resolution, and Internet connectivity.
 
-Private keys, authentication tokens, Wi-Fi credentials, and other secrets are intentionally excluded from this repository.
+Private keys, authentication tokens, Wi-Fi credentials, and other secrets are intentionally excluded from this repository. A sanitized configuration example is available in [`configs/wireguard.example`](configs/wireguard.example).
 
 ## Hardware
 
@@ -79,6 +85,8 @@ Private keys, authentication tokens, Wi-Fi credentials, and other secrets are in
 | ISP Gateway | ARRIS G34 |
 
 OpenWrt was installed on the NVMe SSD, with the microSD card retained as a recovery option.
+
+Detailed hardware information is available in [`docs/hardware.md`](docs/hardware.md).
 
 ## Software
 
@@ -122,6 +130,8 @@ Both Ethernet interfaces negotiated at 1 Gbit/s. During final testing, the Pi re
 
 A Wi-Fi 6 client located near the WAX210 achieved approximately **533 Mbps download, 180 Mbps upload, and 13 ms latency**. The client was connected over 5 GHz 802.11ax with approximately 1.2 Gbit/s negotiated PHY rates.
 
+Full validation results are documented in [`docs/testing.md`](docs/testing.md).
+
 ## ISP Bridge Mode Troubleshooting
 
 One of the main problems encountered during deployment occurred when the ARRIS G34 was switched into bridge mode. The Pi initially failed to receive an IPv4 DHCP lease even though the physical Ethernet connection was working.
@@ -129,6 +139,8 @@ One of the main problems encountered during deployment occurred when the ARRIS G
 Packet capture showed DHCP Discover packets leaving the Pi without any DHCP Offer being returned. A laptop connected directly to the bridged modem showed the same behavior, which helped rule out the Pi's OpenWrt configuration as the only possible cause.
 
 The issue was resolved by cloning the G34's WAN MAC address onto the Pi's WAN interface and performing a full modem power cycle. After that, OpenWrt received a public IPv4 lease from Comcast and the Pi operated normally as the Internet-facing router.
+
+Additional debugging information and lessons learned are documented in [`docs/troubleshooting.md`](docs/troubleshooting.md).
 
 ## Deployment Result
 
@@ -140,26 +152,26 @@ This did not indicate a routing or Raspberry Pi performance problem. It showed t
 
 ## Repository Structure
 
-```text
-.
-├── README.md
-├── LICENSE
-├── configs/
-│   ├── network.example
-│   ├── firewall.example
-│   ├── dhcp.example
-│   ├── unbound.example
-│   └── wireguard.example
-├── docs/
-│   ├── architecture.md
-│   ├── hardware.md
-│   ├── network-design.md
-│   ├── security.md
-│   ├── testing.md
-│   └── troubleshooting.md
-└── images/
-    └── architecture-diagram.png
-```
+### Documentation
+
+- [`docs/architecture.md`](docs/architecture.md) — System architecture, interfaces, VLANs, switching, wireless, DNS, and remote access
+- [`docs/hardware.md`](docs/hardware.md) — Raspberry Pi, NVMe storage, Ethernet adapters, switch, access point, cooling, and power
+- [`docs/network-design.md`](docs/network-design.md) — VLAN addressing, DHCP, switch configuration, routing, and wireless VLAN mapping
+- [`docs/security.md`](docs/security.md) — Firewall policy, DNS security, AdBlock, BanIP, WireGuard, and configuration sanitization
+- [`docs/testing.md`](docs/testing.md) — Functional validation, performance measurements, reboot testing, and deployment results
+- [`docs/troubleshooting.md`](docs/troubleshooting.md) — Ethernet compatibility, VLAN recovery, ISP bridge-mode debugging, and wireless coverage analysis
+
+### Sanitized Configuration Examples
+
+- [`configs/network.example`](configs/network.example) — OpenWrt interfaces, bridge, VLANs, and WAN configuration
+- [`configs/firewall.example`](configs/firewall.example) — Firewall zones, forwarding, DHCP/DNS access rules, and WireGuard WAN rule
+- [`configs/dhcp.example`](configs/dhcp.example) — dnsmasq and DHCP scopes
+- [`configs/unbound.example`](configs/unbound.example) — Unbound, DNSSEC, and DNS-over-TLS architecture
+- [`configs/wireguard.example`](configs/wireguard.example) — Sanitized WireGuard server and client configuration
+
+### Diagram
+
+- [`images/architecture-diagram.png`](images/architecture-diagram.png) — Network architecture diagram
 
 Configuration files included in the repository are sanitized examples and do not contain production credentials or cryptographic secrets.
 
