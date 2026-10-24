@@ -52,8 +52,8 @@ config wireguard_wg0
 
 # Remote-access validation was performed from an iPhone 15 using
 # cellular data. The test confirmed a successful WireGuard handshake,
-# remote OpenWrt management access, DNS resolution, and Internet
-# connectivity through the configured routes.
+# remote OpenWrt management access, DNS resolution, and continued
+# Internet connectivity while using the split-tunnel configuration.
 
 # Never publish:
 #
