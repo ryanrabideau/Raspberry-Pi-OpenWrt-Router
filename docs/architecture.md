@@ -99,7 +99,7 @@ Trusted devices had the greatest level of access. IoT and Guest devices were res
 
 The WireGuard network was also treated as its own firewall zone. Remote VPN clients were given access only to the internal resources required for remote administration and use.
 
-More detailed firewall and security information is documented separately in `security.md`.
+More detailed firewall and security information is documented in [`security.md`](security.md).
 
 ## DNS Architecture
 
