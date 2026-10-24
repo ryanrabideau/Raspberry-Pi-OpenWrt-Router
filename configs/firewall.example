@@ -1,0 +1,121 @@
+# Sanitized OpenWrt firewall configuration example
+#
+# This file documents the major firewall zones, forwarding relationships,
+# and explicit rules used by the project. It is intended as a readable
+# reference rather than a complete export of every default OpenWrt rule.
+
+config defaults
+	option input 'REJECT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+	option synflood_protect '1'
+
+config zone
+	option name 'lan'
+	list network 'lan'
+	list network 'trusted'
+	option input 'ACCEPT'
+	option output 'ACCEPT'
+	option forward 'ACCEPT'
+
+config zone
+	option name 'wan'
+	list network 'wan'
+	list network 'wan6'
+	option input 'REJECT'
+	option output 'ACCEPT'
+	option forward 'DROP'
+	option masq '1'
+	option mtu_fix '1'
+
+config forwarding
+	option src 'lan'
+	option dest 'wan'
+
+config zone
+	option name 'iot'
+	list network 'iot'
+	option input 'REJECT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+
+config forwarding
+	option src 'iot'
+	option dest 'wan'
+
+config rule
+	option name 'Allow-IoT-DHCP'
+	option src 'iot'
+	option proto 'udp'
+	option dest_port '67'
+	option target 'ACCEPT'
+
+config rule
+	option name 'Allow-IoT-DNS'
+	option src 'iot'
+	option proto 'tcp udp'
+	option dest_port '53'
+	option target 'ACCEPT'
+
+config zone
+	option name 'guest'
+	list network 'guest'
+	option input 'REJECT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+
+config forwarding
+	option src 'guest'
+	option dest 'wan'
+
+config rule
+	option name 'Allow-Guest-DHCP'
+	option src 'guest'
+	option proto 'udp'
+	option dest_port '67'
+	option target 'ACCEPT'
+
+config rule
+	option name 'Allow-Guest-DNS'
+	option src 'guest'
+	option proto 'tcp udp'
+	option dest_port '53'
+	option target 'ACCEPT'
+
+config zone
+	option name 'vpn'
+	list network 'wg0'
+	option input 'REJECT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+
+config forwarding
+	option src 'vpn'
+	option dest 'lan'
+
+config rule
+	option name 'Allow-VPN-DNS'
+	option src 'vpn'
+	option proto 'tcp udp'
+	option dest_port '53'
+	option target 'ACCEPT'
+
+config rule
+	option name 'Allow-VPN-Web-Management'
+	option src 'vpn'
+	option proto 'tcp'
+	option dest_port '80 443'
+	option target 'ACCEPT'
+
+config rule
+	option name 'Allow-WireGuard'
+	option src 'wan'
+	option proto 'udp'
+	option dest_port '51820'
+	option target 'ACCEPT'
+
+# Standard OpenWrt WAN infrastructure rules such as DHCP renewal,
+# ICMP, IGMP, DHCPv6, MLD, and required ICMPv6 traffic are retained
+# in the production configuration but omitted here for readability.
+#
+# LuCI and SSH are intentionally not exposed to the WAN.
