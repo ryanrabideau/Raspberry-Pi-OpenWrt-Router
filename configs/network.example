@@ -1,0 +1,70 @@
+# Sanitized OpenWrt network configuration example
+#
+# This file documents the major network interfaces and VLAN structure used
+# by the project. Deployment-specific values such as the WAN MAC override
+# have been replaced with placeholders.
+
+config interface 'loopback'
+	option device 'lo'
+	option proto 'static'
+	option ipaddr '127.0.0.1'
+	option netmask '255.0.0.0'
+
+config device
+	option name 'br-lan'
+	option type 'bridge'
+	list ports 'eth1'
+
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '1'
+	list ports 'eth1:u*'
+
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '10'
+	list ports 'eth1:t'
+
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '20'
+	list ports 'eth1:t'
+
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '30'
+	list ports 'eth1:t'
+
+config interface 'lan'
+	option device 'br-lan.1'
+	option proto 'static'
+	option ipaddr '192.168.1.1'
+	option netmask '255.255.255.0'
+
+config interface 'trusted'
+	option device 'br-lan.10'
+	option proto 'static'
+	option ipaddr '10.0.10.1'
+	option netmask '255.255.255.0'
+
+config interface 'iot'
+	option device 'br-lan.20'
+	option proto 'static'
+	option ipaddr '10.0.20.1'
+	option netmask '255.255.255.0'
+
+config interface 'guest'
+	option device 'br-lan.30'
+	option proto 'static'
+	option ipaddr '10.0.30.1'
+	option netmask '255.255.255.0'
+
+config interface 'wan'
+	option device 'eth0'
+	option proto 'dhcp'
+
+	# Deployment-specific workaround used with the ARRIS G34.
+	# Remove or update this value when using a different modem or ISP.
+	option macaddr '<G34-WAN-MAC>'
+
+# WireGuard is documented separately in wireguard.example.
