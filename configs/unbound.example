@@ -1,0 +1,52 @@
+# Sanitized OpenWrt Unbound configuration example
+#
+# Unbound provides DNSSEC validation and forwards upstream DNS
+# requests to Quad9 using DNS-over-TLS.
+#
+# dnsmasq remains the client-facing DNS service on port 53 and
+# forwards requests locally to Unbound on port 5335.
+
+config unbound 'ub_main'
+	option enabled '1'
+	option manual_conf '0'
+	option localservice '1'
+	option validator '1'
+	option validator_ntp '1'
+	option dhcp_link 'dnsmasq'
+	option listen_port '5335'
+	option protocol 'default'
+	option resource 'default'
+	option recursion 'default'
+	option root_age '9'
+	option ttl_min '120'
+	option ttl_neg_max '1000'
+	option unbound_control '0'
+
+# Upstream forwarding uses Quad9 over DNS-over-TLS.
+#
+# Equivalent resolver behavior:
+#
+# Client
+#   -> dnsmasq :53
+#   -> Unbound :5335
+#   -> Quad9 :853 using TLS
+#
+# Example Quad9 DNS-over-TLS endpoints:
+#
+# 9.9.9.9
+# 149.112.112.112
+#
+# TLS server name:
+# dns.quad9.net
+#
+# The exact generated Unbound configuration can vary between
+# OpenWrt/Unbound package versions. This example documents the
+# architecture used by the project rather than serving as a
+# complete drop-in replacement for /etc/config/unbound.
+
+# DNSSEC validation was tested with:
+#
+#   dnssec-failed.org
+#
+# The intentionally invalid domain correctly returned SERVFAIL,
+# while normal domains such as example.com continued to resolve.
